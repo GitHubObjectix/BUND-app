@@ -1,0 +1,13 @@
+<ul class="nistkaesten">
+
+    <li>
+    <a routerLink="/all">
+        <span class="badge">0</span> Alle
+    </a>
+    </li>
+    <li *ngFor="let nistkasten of nistkaesten">
+        <a routerLink="/detail/{{nistkasten.id}}">
+            <span class="badge">{{nistkasten.id}}</span> {{nistkasten.characteristic}}
+        </a>
+    </li>
+</ul>
