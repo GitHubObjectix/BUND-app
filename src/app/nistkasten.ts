@@ -1,9 +1,7 @@
 export interface Position {
     description: string;
     lat: number;
-    description_lat: string;
     lon: number;
-    description_lon: string;
 }
 
 export interface Content
