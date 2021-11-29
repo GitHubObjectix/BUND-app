@@ -1,29 +1,25 @@
 import { Injectable } from '@angular/core';
+import { environment } from './../environments/environment';
 
 import { Nistkasten } from './nistkasten'
 import { Position } from './nistkasten';
-import { NISTKAESTEN } from './mock-nistkaesten'
-import { elementEventFullName } from '@angular/compiler/src/view_compiler/view_compiler';
 
-import * as XSLX from 'xlsx';
 import { HttpClient } from '@angular/common/http';
-//import { Position } from '@angular/compiler';
 
 @Injectable({
   providedIn: 'root'
 })
 export class NistkastenService {
 
-  private url = 'https://tm9n6snoj9.execute-api.eu-central-1.amazonaws.com/dev/nextboxes';
   private nistkaesten: Nistkasten[] = [];
 
   constructor(private http: HttpClient)
   {
-    console.log("NistkastenService ctor")
   }
 
   loadNistkaesten(): Promise<any> {
-    const promise = this.http.get<any>(this.url)
+    const url = environment.apiUrl + '/nestboxes';
+    const promise = this.http.get<any>(url)
       .toPromise()
       .then(data => {
         for (let n = 0; n < data.Count; ++n) {
@@ -51,9 +47,9 @@ export class NistkastenService {
   }
 
   getNistkasten(id: number) : Nistkasten {
-    var nistkasten = NISTKAESTEN.find(nistkasten => nistkasten.id == id);
+    var nistkasten = this.nistkaesten.find(nistkasten => nistkasten.id == id);
     if (nistkasten == undefined)
-      nistkasten = NISTKAESTEN[0];
+      nistkasten = this.nistkaesten[0];
     return nistkasten;
   }
 }
