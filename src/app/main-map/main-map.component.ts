@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 
 import 'ol/ol.css';
-import { Map, View } from 'ol';
+import { Map, MapBrowserEvent, View } from 'ol';
 import Vector from 'ol/source/Vector';
 import TileLayer from 'ol/layer/Tile';
 import VectorLayer from 'ol/layer/Vector';
@@ -14,6 +14,8 @@ import OSM from 'ol/source/OSM';
 
 import { Nistkasten } from '../nistkasten';
 import { NistkastenService } from '../nistkasten.service';
+import { ViewportScroller } from '@angular/common';
+import { empty } from 'rxjs';
 
 @Component({
   selector: 'app-main-map',
@@ -23,7 +25,6 @@ import { NistkastenService } from '../nistkasten.service';
 export class MainMapComponent implements OnInit {
 
   public map!: Map;
-  nistkaesten: Nistkasten[] = [];
 
   constructor(private nistkastenService : NistkastenService) { }
 
@@ -33,6 +34,7 @@ export class MainMapComponent implements OnInit {
   ngAfterViewInit(): void {
     this.initializeMap();
     this.addNistkastenLayer();
+    this.initializePositionWatch();
   }
 
   private initializeMap(): void {
@@ -51,11 +53,11 @@ export class MainMapComponent implements OnInit {
   }
 
   addNistkastenLayer(): void {
-    this.nistkaesten = this.nistkastenService.getNistkaesten();
+    var nistkaesten = this.nistkastenService.getNistkaesten();
 
     var vectorSource = new Vector;
 
-    this.nistkaesten.forEach(function (nistkasten) {
+    nistkaesten.forEach(function (nistkasten) {
       console.log(nistkasten.position.lon);
       var iconFeature = new Feature({
         geometry: new Point(olProj.fromLonLat([nistkasten.position.lon, nistkasten.position.lat]))
@@ -76,5 +78,30 @@ export class MainMapComponent implements OnInit {
       source: vectorSource,
     })
     this.map.addLayer(nistkastenLayer);
+  }
+
+  private setViewCenter(comp: MainMapComponent, position: GeolocationPosition)
+  {
+    if (position) {
+      console.log("setting new center");
+      comp.map.getView().setCenter(olProj.fromLonLat([position.coords.longitude, position.coords.latitude]));
+    }
+  }
+
+  private positionError(error: GeolocationPositionError)
+  {
+  }
+
+  private initializePositionWatch()
+  {
+    if (navigator && navigator.geolocation) {
+      console.log("creating position watcher");
+      let options : PositionOptions = {
+        maximumAge: 0,
+        timeout: 100,
+        enableHighAccuracy: false
+      }
+      navigator.geolocation.watchPosition((position ) => { this.setViewCenter(this, position) }, this.positionError, options);
+    }
   }
 }

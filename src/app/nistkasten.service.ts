@@ -22,6 +22,7 @@ export class NistkastenService {
     const promise = this.http.get<any>(url)
       .toPromise()
       .then(data => {
+        console.log(data);
         for (let n = 0; n < data.Count; ++n) {
           let pos: Position = {
             description: "",
