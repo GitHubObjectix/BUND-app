@@ -47,7 +47,8 @@ export class MainMapComponent implements OnInit {
       ],
       view: new View({
         center: olProj.fromLonLat([9.810, 49.819]),   // Karte auf Tännig zentrieren
-        zoom: 16                                      // reinzoomen auf Hettstadt
+        zoom: 16,                                     // reinzoomen auf Hettstadt
+        rotation: 0
       })
     });
   }
@@ -61,12 +62,10 @@ export class MainMapComponent implements OnInit {
       console.log(nistkasten.position.lon);
       var iconFeature = new Feature({
         geometry: new Point(olProj.fromLonLat([nistkasten.position.lon, nistkasten.position.lat]))
-        //geometry: new Point([nistkasten.position.lon, nistkasten.position.lat])
       });
       var iconStyle = new Style({
         image: new Icon({
           anchor: [0.5, 0.5],
-          //opacity: 0.75,
           src: 'assets/img/nistkasten.png'
         })
       });
@@ -84,7 +83,10 @@ export class MainMapComponent implements OnInit {
   {
     if (position) {
       console.log("setting new center");
-      comp.map.getView().setCenter(olProj.fromLonLat([position.coords.longitude, position.coords.latitude]));
+      var view = comp.map.getView();
+      view.setCenter(olProj.fromLonLat([position.coords.longitude, position.coords.latitude]));
+      if (position.coords.heading)
+        view.setRotation(position.coords.heading);
     }
   }
 
@@ -101,7 +103,7 @@ export class MainMapComponent implements OnInit {
         timeout: 100,
         enableHighAccuracy: false
       }
-      navigator.geolocation.watchPosition((position ) => { this.setViewCenter(this, position) }, this.positionError, options);
+      //navigator.geolocation.watchPosition((position ) => { this.setViewCenter(this, position) }, this.positionError, options);
     }
   }
 }
