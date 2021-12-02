@@ -1,21 +1,22 @@
 import { Component, OnInit } from '@angular/core';
 
 import 'ol/ol.css';
-import { Map, MapBrowserEvent, View } from 'ol';
+import { Map, View } from 'ol';
 import Vector from 'ol/source/Vector';
 import TileLayer from 'ol/layer/Tile';
 import VectorLayer from 'ol/layer/Vector';
 import Feature from 'ol/Feature';
 import Point from 'ol/geom/Point';
+import Geolocation from 'ol/Geolocation';
 import { Style, Icon } from 'ol/style';
+import CircleStyle from 'ol/style/Circle';
+import { Fill, Stroke } from 'ol/style';
 import * as olProj from 'ol/proj'
 import OSM from 'ol/source/OSM';
 
 
-import { Nistkasten } from '../nistkasten';
 import { NistkastenService } from '../nistkasten.service';
-import { ViewportScroller } from '@angular/common';
-import { empty } from 'rxjs';
+import VectorSource from 'ol/source/Vector';
 
 @Component({
   selector: 'app-main-map',
@@ -25,6 +26,10 @@ import { empty } from 'rxjs';
 export class MainMapComponent implements OnInit {
 
   public map!: Map;
+  public positionFeature!: Feature;
+  public geolocation!: Geolocation;
+
+  private isTracking: boolean = false;
 
   constructor(private nistkastenService : NistkastenService) { }
 
@@ -34,10 +39,13 @@ export class MainMapComponent implements OnInit {
   ngAfterViewInit(): void {
     this.initializeMap();
     this.addNistkastenLayer();
-    this.initializePositionWatch();
   }
 
   private initializeMap(): void {
+    //const defaultLocation = olProj.fromLonLat([9.810, 49.819]);
+    const defaultLocation = olProj.fromLonLat([9.818517, 49.819717])
+
+    // initialize map including initial position and zoom
     this.map = new Map({
       target: 'map',
       layers: [
@@ -46,11 +54,57 @@ export class MainMapComponent implements OnInit {
         })
       ],
       view: new View({
-        center: olProj.fromLonLat([9.810, 49.819]),   // Karte auf Tännig zentrieren
-        zoom: 16,                                     // reinzoomen auf Hettstadt
+        center: defaultLocation,   // Karte auf Tännig zentrieren
+        zoom: 14,                  // reinzoomen auf Hettstadt
         rotation: 0
       })
     });
+
+    var projection = this.map.getView().getProjection();
+    var metersPerUnit = projection.getMetersPerUnit();
+
+    this.nistkastenService.updateDistances(defaultLocation);
+
+    // add a circle feature into a vector layer to display current geoposition
+    this.positionFeature = new Feature();
+    this.positionFeature.setStyle(
+      new Style({
+        image: new CircleStyle({
+          radius: 6,
+          fill: new Fill({
+            color: '#3399CC',
+          }),
+          stroke: new Stroke({
+            color: '#fff',
+            width: 2,
+          }),
+        }),
+      })
+    );
+    this.positionFeature.setGeometry(new Point(defaultLocation));
+
+    new VectorLayer({
+      map: this.map,
+      source: new VectorSource({ features: [this.positionFeature] })
+    });
+
+    // let the geolocation API control the map
+    this.geolocation = new Geolocation({
+      trackingOptions: {
+        maximumAge: 0,
+        timeout: 100,
+        enableHighAccuracy: false
+      },
+      projection: this.map.getView().getProjection()
+    });
+
+    this.geolocation.on('change:position', () => { this.positionUpdate(this); });
+    this.geolocation.on('change', () => {
+      var headingEl = document.getElementById('heading');
+      if (headingEl)
+        headingEl.innerText = this.geolocation.getHeading() + ' [rad]';
+    });
+    this.geolocation.setTracking(true);
   }
 
   addNistkastenLayer(): void {
@@ -85,25 +139,45 @@ export class MainMapComponent implements OnInit {
       console.log("setting new center");
       var view = comp.map.getView();
       view.setCenter(olProj.fromLonLat([position.coords.longitude, position.coords.latitude]));
-      if (position.coords.heading)
-        view.setRotation(position.coords.heading);
+      if (position.coords.heading) {
+
+        // convert degrees to radiant
+        var headingRad = ( 3.1415926 / 180.0 ) * position.coords.heading;
+        view.setRotation(headingRad);
+      }
     }
   }
 
-  private positionError(error: GeolocationPositionError)
+  private positionUpdate(comp: MainMapComponent)
   {
+    console.log("position update");
+
+    const coordinates = comp.geolocation.getPosition();
+    if (coordinates) {
+      comp.positionFeature.setGeometry(new Point(coordinates));
+
+      if (comp.isTracking) {
+        comp.map.getView().setCenter(coordinates);
+      }
+
+      // TODO! check if async operation required
+      comp.nistkastenService.updateDistances(coordinates);
+    }
   }
 
-  private initializePositionWatch()
+  public onTrackChange()
   {
     if (navigator && navigator.geolocation) {
-      console.log("creating position watcher");
-      let options : PositionOptions = {
-        maximumAge: 0,
-        timeout: 100,
-        enableHighAccuracy: false
+      if (this.isTracking == false) {
+        console.log("tracking");
+        this.isTracking = true;
+
+        this.map.getView().setCenter(this.geolocation.getPosition());
       }
-      //navigator.geolocation.watchPosition((position ) => { this.setViewCenter(this, position) }, this.positionError, options);
+      else {
+        console.log("not tracking");
+        this.isTracking = false;
+      }
     }
   }
 }

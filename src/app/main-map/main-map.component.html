@@ -1,3 +1,12 @@
-<h2>Position aller Nistkästen der BUND Ortsgruppe Hettstadt</h2>
-<div id="map" class="map"></div>
-
+<!--meta name="viewport" content="width=device-width, height=800, initial-scale=1.0"-->
+<body>
+<!--h2>Position aller Nistkästen der BUND Ortsgruppe Hettstadt</h2-->
+<div id="map-area">
+    <div id="map"></div>
+    <div id="pos-button-area" style="text-align: center;">
+        <mat-button-toggle id="pos-button" (change)="onTrackChange()">Track</mat-button-toggle>
+    </div>
+    
+</div>
+<div><code id="heading"></code></div>
+</body>

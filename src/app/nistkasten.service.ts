@@ -6,6 +6,11 @@ import { Position } from './nistkasten';
 
 import { HttpClient } from '@angular/common/http';
 
+import Point from 'ol/geom/Point';
+import LineString from 'ol/geom/LineString';
+import * as olProj from 'ol/proj'
+import { Coordinate } from 'ol/coordinate';
+
 @Injectable({
   providedIn: 'root'
 })
@@ -52,5 +57,13 @@ export class NistkastenService {
     if (nistkasten == undefined)
       nistkasten = this.nistkaesten[0];
     return nistkasten;
+  }
+
+  updateDistances(geoposition: Coordinate)
+  {    
+    this.nistkaesten.forEach ((nistkasten) => {
+      var line = new LineString([geoposition, olProj.fromLonLat([nistkasten.position.lon, nistkasten.position.lat])]);
+      var length = line.getLength()
+    });
   }
 }

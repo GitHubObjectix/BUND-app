@@ -9,6 +9,8 @@ import { MainMapComponent } from './main-map/main-map.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { NistkastenDetailsComponent } from './nistkasten-details/nistkasten-details.component';
 import { NistkastenService } from './nistkasten.service';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { MatButtonToggleModule } from '@angular/material/button-toggle'
 
 export function appInit(nistkastenService: NistkastenService) {
   return () => nistkastenService.loadNistkaesten();
@@ -25,7 +27,9 @@ export function appInit(nistkastenService: NistkastenService) {
     BrowserModule,
     FormsModule,
     AppRoutingModule,
-    HttpClientModule
+    HttpClientModule,
+    BrowserAnimationsModule,
+    MatButtonToggleModule
   ],
   providers: [NistkastenService,
     {
