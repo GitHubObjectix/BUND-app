@@ -2,6 +2,9 @@
   width: device-width;
   height: device-height;
   zoom: 1;
+  max-zoom: 1;
+  min-zoom: 1;
+  user-zoom: false;
 }
 
 * {
@@ -28,4 +31,31 @@
 #pos-button {
   width: 40px;
   height: 40px;
+}
+
+#nk-table {
+  size: 100%;
+  font-size: large;
+}
+
+.nk-row > td {
+  padding-top: 1em;
+  text-align: center;
+}
+
+.nk-table .nk-id {
+  width: 20%;
+}
+
+.nk-table .nk-characteristic {
+  width: 50%;
+  align-content: center;
+}
+
+.nk-table .nk-number {
+  width: 20%;
+}
+
+.nk-table .nk-distance {
+  width: 10%;
 }

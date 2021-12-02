@@ -12,11 +12,15 @@
     
 </div>
 <div><code id="heading"></code></div>
-<ul class="nistkaesten">
-    <li *ngFor="let nistkasten of closestNistkaesten">
-        <a routerLink="/detail/{{nistkasten.id}}">
-            <span class="badge">{{nistkasten.id}}</span> {{nistkasten.characteristic}}
-        </a>
-    </li>
-</ul>
+<div id="nk-table">
+    <table>
+        <tr *ngIf="closestNistkaesten.length > 0"><th>Kennung</th><th>Nummernaufdruck</th><th>Merkmale</th><th>Entfernung</th></tr>
+        <tr class="nk-row" *ngFor="let nistkasten of closestNistkaesten">
+            <td class="nk-id"><a routerLink="/detail/{{nistkasten.id}}">{{nistkasten.id}}</a></td>
+            <td class="nk-number"><a routerLink="/detail/{{nistkasten.id}}">{{nistkasten.number}}</a></td>
+            <td class="nk-characteristic"><a routerLink="/detail/{{nistkasten.id}}">{{nistkasten.characteristic}}</a></td>
+            <td class="nk-distance">{{nistkasten.distance!.toFixed(2)}} m</td>
+        </tr>
+    </table>
+</div>
 </body>

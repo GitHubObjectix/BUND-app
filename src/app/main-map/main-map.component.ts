@@ -8,7 +8,7 @@ import VectorLayer from 'ol/layer/Vector';
 import Feature from 'ol/Feature';
 import Point from 'ol/geom/Point';
 import Geolocation from 'ol/Geolocation';
-import { Style, Icon } from 'ol/style';
+import { Style, Icon, Text } from 'ol/style';
 import CircleStyle from 'ol/style/Circle';
 import { Fill, Stroke } from 'ol/style';
 import * as olProj from 'ol/proj'
@@ -119,17 +119,23 @@ export class MainMapComponent implements OnInit {
 
     nistkaesten.forEach(function (nistkasten) {
       console.log(nistkasten.position.lon);
-      var iconFeature = new Feature({
+      var nkFeature = new Feature({
         geometry: new Point(olProj.fromLonLat([nistkasten.position.lon, nistkasten.position.lat]))
       });
       var iconStyle = new Style({
         image: new Icon({
           anchor: [0.5, 0.5],
           src: 'assets/img/nistkasten.png'
+        }),
+        text: new Text({
+          offsetX: -10,
+          offsetY: -10,
+          text: nistkasten.id.toString()
         })
+
       });
-      iconFeature.setStyle(iconStyle);
-      vectorSource.addFeature(iconFeature);
+      nkFeature.setStyle(iconStyle);
+      vectorSource.addFeature(nkFeature);
     });
 
     var nistkastenLayer = new VectorLayer({
@@ -154,6 +160,12 @@ export class MainMapComponent implements OnInit {
       comp.nistkastenService.updateDistances(coordinates);
       comp.closestNistkaesten = comp.nistkastenService.getClosestNistkaesten(10.0);
     }
+
+    const heading = comp.geolocation.getHeading();
+    if (heading && comp.isTracking)
+    {
+      comp.map.getView().setRotation(heading);
+    }
   }
 
   private headingUpdate(comp: MainMapComponent)
@@ -170,7 +182,9 @@ export class MainMapComponent implements OnInit {
         console.log("tracking");
         this.isTracking = true;
 
-        this.map.getView().setCenter(this.geolocation.getPosition());
+        const coordinates = this.geolocation.getPosition();
+        if (coordinates)
+          this.map.getView().setCenter(coordinates);
       }
       else {
         console.log("not tracking");
