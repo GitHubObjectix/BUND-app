@@ -1,4 +1,7 @@
 <!--meta name="viewport" content="width=device-width, height=800, initial-scale=1.0"-->
+<nav>
+    <a routerLink="..">Zurück</a>
+</nav>
 <body>
 <!--h2>Position aller Nistkästen der BUND Ortsgruppe Hettstadt</h2-->
 <div id="map-area">
@@ -9,4 +12,11 @@
     
 </div>
 <div><code id="heading"></code></div>
+<ul class="nistkaesten">
+    <li *ngFor="let nistkasten of closestNistkaesten">
+        <a routerLink="/detail/{{nistkasten.id}}">
+            <span class="badge">{{nistkasten.id}}</span> {{nistkasten.characteristic}}
+        </a>
+    </li>
+</ul>
 </body>

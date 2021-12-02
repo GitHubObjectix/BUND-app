@@ -84,4 +84,8 @@ export class NistkastenDetailsComponent implements OnInit {
     })
     this.map.addLayer(this.nistkastenLayer);
   }
+
+  goBack() {
+    this.location.back();
+  }
 }

@@ -17,6 +17,7 @@ import OSM from 'ol/source/OSM';
 
 import { NistkastenService } from '../nistkasten.service';
 import VectorSource from 'ol/source/Vector';
+import { Nistkasten } from '../nistkasten';
 
 @Component({
   selector: 'app-main-map',
@@ -31,21 +32,26 @@ export class MainMapComponent implements OnInit {
 
   private isTracking: boolean = false;
 
-  constructor(private nistkastenService : NistkastenService) { }
+  public closestNistkaesten: Nistkasten[] = [];
+
+  constructor(private nistkastenService : NistkastenService) {
+  }
 
   ngOnInit(): void {
   }
 
   ngAfterViewInit(): void {
+    console.log("main map after view init")
     this.initializeMap();
     this.addNistkastenLayer();
   }
 
   private initializeMap(): void {
-    //const defaultLocation = olProj.fromLonLat([9.810, 49.819]);
-    const defaultLocation = olProj.fromLonLat([9.818517, 49.819717])
+    const defaultLocation = olProj.fromLonLat([9.810, 49.819]);
+    //const defaultLocation = olProj.fromLonLat([9.818517, 49.819717])
 
     // initialize map including initial position and zoom
+    // view uses default projection with units in meters
     this.map = new Map({
       target: 'map',
       layers: [
@@ -59,11 +65,6 @@ export class MainMapComponent implements OnInit {
         rotation: 0
       })
     });
-
-    var projection = this.map.getView().getProjection();
-    var metersPerUnit = projection.getMetersPerUnit();
-
-    this.nistkastenService.updateDistances(defaultLocation);
 
     // add a circle feature into a vector layer to display current geoposition
     this.positionFeature = new Feature();
@@ -98,12 +99,16 @@ export class MainMapComponent implements OnInit {
       projection: this.map.getView().getProjection()
     });
 
+    var geoposition = this.geolocation.getPosition();
+    if (geoposition)
+    {
+      console.log("initial position update");
+      this.positionUpdate(this);
+      this.headingUpdate(this);
+    }
+
     this.geolocation.on('change:position', () => { this.positionUpdate(this); });
-    this.geolocation.on('change', () => {
-      var headingEl = document.getElementById('heading');
-      if (headingEl)
-        headingEl.innerText = this.geolocation.getHeading() + ' [rad]';
-    });
+    this.geolocation.on('change', () => { this.headingUpdate(this); });
     this.geolocation.setTracking(true);
   }
 
@@ -133,21 +138,6 @@ export class MainMapComponent implements OnInit {
     this.map.addLayer(nistkastenLayer);
   }
 
-  private setViewCenter(comp: MainMapComponent, position: GeolocationPosition)
-  {
-    if (position) {
-      console.log("setting new center");
-      var view = comp.map.getView();
-      view.setCenter(olProj.fromLonLat([position.coords.longitude, position.coords.latitude]));
-      if (position.coords.heading) {
-
-        // convert degrees to radiant
-        var headingRad = ( 3.1415926 / 180.0 ) * position.coords.heading;
-        view.setRotation(headingRad);
-      }
-    }
-  }
-
   private positionUpdate(comp: MainMapComponent)
   {
     console.log("position update");
@@ -162,7 +152,15 @@ export class MainMapComponent implements OnInit {
 
       // TODO! check if async operation required
       comp.nistkastenService.updateDistances(coordinates);
+      comp.closestNistkaesten = comp.nistkastenService.getClosestNistkaesten(10.0);
     }
+  }
+
+  private headingUpdate(comp: MainMapComponent)
+  {
+    var headingEl = document.getElementById('heading');
+    if (headingEl)
+      headingEl.innerText = comp.geolocation.getHeading() + ' [rad]';
   }
 
   public onTrackChange()

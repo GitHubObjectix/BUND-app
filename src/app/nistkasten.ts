@@ -16,4 +16,5 @@ export interface Nistkasten {
     characteristic: string;
     position: Position;
     content: Content[];
+    distance?: number;
 }

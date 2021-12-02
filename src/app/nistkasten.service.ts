@@ -63,7 +63,12 @@ export class NistkastenService {
   {    
     this.nistkaesten.forEach ((nistkasten) => {
       var line = new LineString([geoposition, olProj.fromLonLat([nistkasten.position.lon, nistkasten.position.lat])]);
-      var length = line.getLength()
+      nistkasten.distance = line.getLength();
     });
+  }
+
+  getClosestNistkaesten(distThreshold: number) : Nistkasten[]
+  {
+    return this.nistkaesten.filter(nk => (nk.distance != undefined ? nk.distance <= distThreshold : true));
   }
 }
