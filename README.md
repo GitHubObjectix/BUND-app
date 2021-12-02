@@ -8,8 +8,11 @@ Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app w
 
 ## Deployment to AWS
 
-- Build and publish Docker image
-- Create Elastic Beanstalk app by selecting Dockerun.aws.json
+### Build and publish Docker image
+docker build -t objectix/bund-app-image:latest .
+docker push objectix/bund-app-image:latest
+
+### Create Elastic Beanstalk app by selecting Dockerun.aws.json
 
 ## Code scaffolding
 
