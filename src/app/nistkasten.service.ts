@@ -31,8 +31,8 @@ export class NistkastenService {
         for (let n = 0; n < data.Count; ++n) {
           let pos: Position = {
             description: "",
-            lat: data.Items[n].lat.N,
-            lon: data.Items[n].lon.N,
+            lat: data.Items[n].lat.S,
+            lon: data.Items[n].lon.S,
           };
           let nistkasten: Nistkasten = {
             id: data.Items[n].id.S,
