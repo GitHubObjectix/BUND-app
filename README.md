@@ -14,6 +14,19 @@ docker push objectix/bund-app-image:latest
 
 ### Create Elastic Beanstalk app by selecting Dockerun.aws.json
 
+Go to AWS console
+Goto Elastic Beanstalk
+Select 'Anwendung', 'Erstelle Anwendung'
+Select platform 'Docker' and select file 'Dockerun.aws.json'
+
+## Upload key/certificate to AWS IAM via console (use upload to upload certificate.pen and key.pem from BUND-app/ssl)
+
+aws iam upload-server-certificate --server-certificate-name BUND-Hettstadt-Nistkaesten-x509 --certificate-body file://certificate.pem --private-key file://key.pem
+
+## Create load balancer to support HTTPs connections (see https://docs.aws.amazon.com/de_de/elasticbeanstalk/latest/dg/configuring-https-elb.html)
+
+## AWS API Gateway - Create stage 
+
 ## Code scaffolding
 
 Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
