@@ -1,0 +1,6 @@
+<p>Position setzen</p>
+<input type="number" [(ngModel)]="lonDeg" min="-180" max="180">°<input type="number" [(ngModel)]="lonMinInt">.<input type="text" [(ngModel)]="lonMinFrac" pattern="[0-9]*" min="3" max="3">'
+<br>
+<input type="number" [(ngModel)]="latDeg" min="-180" max="180">°<input type="number" [(ngModel)]="latMinInt">.<input type="text" [(ngModel)]="latMinFrac" pattern="[0-9]*" min="3" max="3">'
+<br>
+<button type="button" (click)="onSetPositionClicked()">Position setzen</button>

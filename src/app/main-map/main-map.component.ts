@@ -18,6 +18,8 @@ import OSM from 'ol/source/OSM';
 import { NistkastenService } from '../nistkasten.service';
 import VectorSource from 'ol/source/Vector';
 import { Nistkasten } from '../nistkasten';
+import { LocationService } from '../location.service';
+import { Coordinate } from 'ol/coordinate';
 
 @Component({
   selector: 'app-main-map',
@@ -34,7 +36,7 @@ export class MainMapComponent implements OnInit {
 
   public closestNistkaesten: Nistkasten[] = [];
 
-  constructor(private nistkastenService : NistkastenService) {
+  constructor(private nistkastenService : NistkastenService, private locationService : LocationService) {
   }
 
   ngOnInit(): void {
@@ -47,9 +49,6 @@ export class MainMapComponent implements OnInit {
   }
 
   private initializeMap(): void {
-    const defaultLocation = olProj.fromLonLat([9.810, 49.819]);
-    //const defaultLocation = olProj.fromLonLat([9.818517, 49.819717])
-
     // initialize map including initial position and zoom
     // view uses default projection with units in meters
     this.map = new Map({
@@ -60,8 +59,8 @@ export class MainMapComponent implements OnInit {
         })
       ],
       view: new View({
-        center: defaultLocation,   // Karte auf Tännig zentrieren
-        zoom: 14,                  // reinzoomen auf Hettstadt
+        center: this.locationService.getCurrentLocation(), // center map to current location
+        zoom: 14, // zoom so that Hettstadt gets visible
         rotation: 0
       })
     });
@@ -82,7 +81,7 @@ export class MainMapComponent implements OnInit {
         }),
       })
     );
-    this.positionFeature.setGeometry(new Point(defaultLocation));
+    this.positionFeature.setGeometry(new Point(this.locationService.getCurrentLocation()));
 
     new VectorLayer({
       map: this.map,
@@ -99,14 +98,11 @@ export class MainMapComponent implements OnInit {
       projection: this.map.getView().getProjection()
     });
 
-    var geoposition = this.geolocation.getPosition();
-    if (geoposition)
-    {
-      console.log("initial position update");
-      this.positionUpdate(this);
-      this.headingUpdate(this);
-    }
+    this.updateClosestNistkaesten(this, this.locationService.getCurrentLocation());
 
+    // listen to built-in location service to auto-update location and heading
+    // on mobile phones this only works if web browser can access location
+    // on some mobile phone the web site has to use HTTPs for that
     this.geolocation.on('change:position', () => { this.positionUpdate(this); });
     this.geolocation.on('change', () => { this.headingUpdate(this); });
     this.geolocation.setTracking(true);
@@ -118,7 +114,7 @@ export class MainMapComponent implements OnInit {
     var vectorSource = new Vector;
 
     nistkaesten.forEach(function (nistkasten) {
-      console.log(nistkasten.position.lon);
+      //console.log(nistkasten.position.lon);
       var nkFeature = new Feature({
         geometry: new Point(olProj.fromLonLat([nistkasten.position.lon, nistkasten.position.lat]))
       });
@@ -156,9 +152,7 @@ export class MainMapComponent implements OnInit {
         comp.map.getView().setCenter(coordinates);
       }
 
-      // TODO! check if async operation required
-      comp.nistkastenService.updateDistances(coordinates);
-      comp.closestNistkaesten = comp.nistkastenService.getClosestNistkaesten(10.0);
+      this.updateClosestNistkaesten(comp, coordinates);
     }
 
     const heading = comp.geolocation.getHeading();
@@ -166,6 +160,14 @@ export class MainMapComponent implements OnInit {
     {
       comp.map.getView().setRotation(heading);
     }
+  }
+
+  private updateClosestNistkaesten(comp: MainMapComponent, location : Coordinate)
+  {
+      // TODO! check if async operation required
+      comp.nistkastenService.updateDistances(location);
+      // TODO! make distance for nearest check configurable
+      comp.closestNistkaesten = comp.nistkastenService.getClosestNistkaesten(10.0);
   }
 
   private headingUpdate(comp: MainMapComponent)
@@ -177,6 +179,9 @@ export class MainMapComponent implements OnInit {
 
   public onTrackChange()
   {
+    // called when user clicks track button
+    // used to auto-update map center and rotation based on location parameters
+
     if (navigator && navigator.geolocation) {
       if (this.isTracking == false) {
         console.log("tracking");

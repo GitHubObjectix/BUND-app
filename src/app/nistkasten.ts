@@ -3,7 +3,6 @@ export interface Position {
     lat: number;
     lon: number;
 }
-
 export interface Content
 {
     year: number;
