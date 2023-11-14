@@ -1,6 +1,7 @@
 <!--meta name="viewport" content="width=device-width, height=800, initial-scale=1.0"-->
 <nav>
-    <a routerLink="..">Zurück</a>
+    <a routerLink="">Home </a>
+    <a routerLink="/set-position">Position setzen </a>
 </nav>
 <body>
 <!--h2>Position aller Nistkästen der BUND Ortsgruppe Hettstadt</h2-->
@@ -14,11 +15,11 @@
 <div><code id="heading"></code></div>
 <div id="nk-table">
     <table>
-        <tr *ngIf="closestNistkaesten.length > 0"><th>Kennung</th><th>Nummernaufdruck</th><th>Merkmale</th><th>Entfernung</th></tr>
-        <tr class="nk-row" *ngFor="let nistkasten of closestNistkaesten">
-            <td class="nk-id"><a routerLink="/detail/{{nistkasten.id}}">{{nistkasten.id}}</a></td>
-            <td class="nk-number"><a routerLink="/detail/{{nistkasten.id}}">{{nistkasten.number}}</a></td>
-            <td class="nk-characteristic"><a routerLink="/detail/{{nistkasten.id}}">{{nistkasten.characteristic}}</a></td>
+        <tr *ngIf="closestNistkaesten.length > 0"><th>Kennung</th><th>Nummernaufdruck</th><th>Merkmal</th><th>Entfernung</th></tr>
+        <tr class="nk-row" *ngFor="let nistkasten of closestNistkaesten; index as i">
+            <td class="nk-id"><a [routerLink]="['/details', {filter: 1, item: i}]" >{{nistkasten.id}}</a></td>
+            <td class="nk-number">{{nistkasten.number}}</td>
+            <td class="nk-characteristic">{{nistkasten.characteristic}}</td>
             <td class="nk-distance">{{nistkasten.distance!.toFixed(2)}} m</td>
         </tr>
     </table>

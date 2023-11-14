@@ -1,17 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { Router } from '@angular/router';
 import { Location } from '@angular/common';
-
-import 'ol/ol.css';
-import { Map, View } from 'ol';
-import Vector from 'ol/source/Vector';
-import TileLayer from 'ol/layer/Tile';
-import VectorLayer from 'ol/layer/Vector';
-import Feature from 'ol/Feature';
-import Point from 'ol/geom/Point';
-import { Style, Icon } from 'ol/style';
-import * as olProj from 'ol/proj'
-import OSM from 'ol/source/OSM';
 
 import { Nistkasten } from '../nistkasten';
 import { NistkastenService } from '../nistkasten.service';
@@ -23,66 +13,34 @@ import { NistkastenService } from '../nistkasten.service';
 })
 export class NistkastenDetailsComponent implements OnInit {
 
-  public map!: Map;
-  nistkastenLayer!: VectorLayer;
-  public nistkasten!: Nistkasten;
+  public filter : number = 0; 
+  public filteredNistkaesten: Nistkasten[] = [];
+  public selectedItem : number = 0;
+  public selectedNistkasten! : Nistkasten;
 
-  constructor(private route: ActivatedRoute, private nistkastenService : NistkastenService, private location: Location) { }
+  constructor(private route: ActivatedRoute, private router: Router, private nistkastenService : NistkastenService, private location: Location) { }
 
   ngOnInit(): void {
-    const id = this.route.snapshot.paramMap.get('id');
-    if (id != undefined)
-    {
-      var parsed = parseInt(id, 10);
-      if (!isNaN(parsed))
-      {
-        this.nistkasten = this.nistkastenService.getNistkasten(parsed);
+    this.filter = Number(this.route.snapshot.paramMap.get('filter'));
+    this.selectedItem = Number(this.route.snapshot.paramMap.get('item'));
+    console.log("filter: " + this.filter + " item: " + this.selectedItem);
 
-        this.initializeMap(this.nistkasten.position.lon, this.nistkasten.position.lat);
-        this.addNistkastenLayer(this.nistkasten);
-      }
-    }
-
-    console.log(id);
+    this.filteredNistkaesten = (this.filter == 0 ? this.nistkastenService.getNistkaesten() : this.nistkastenService.getClosestNistkaesten(10.0));
+    this.selectedNistkasten = this.filteredNistkaesten[this.selectedItem];
   }
 
-  private initializeMap(lon : number, lat : number): void {
-    this.map = new Map({
-      target: 'map',
-      layers: [
-        new TileLayer({
-          source: new OSM()
-        })
-      ],
-      view: new View({
-        center: olProj.fromLonLat([lon, lat]),   // Karte auf Tännig zentrieren
-        zoom: 16                                      // reinzoomen auf Hettstadt
-      })
-    });
+  onCommentsClicked() {
+    // Attention! nistkasten id used as uri part implies format of it
+    this.router.navigate(["comments/" + this.selectedNistkasten.id]);
   }
 
-  addNistkastenLayer(nistkasten: Nistkasten): void {
-    var vectorSource = new Vector;
-
-    console.log(nistkasten.position.lon);
-    var iconFeature = new Feature({
-      geometry: new Point(olProj.fromLonLat([nistkasten.position.lon, nistkasten.position.lat]))
-      //geometry: new Point([nistkasten.position.lon, nistkasten.position.lat])
-    });
-    var iconStyle = new Style({
-      image: new Icon({
-        anchor: [0.5, 0.5],
-        //opacity: 0.75,
-        src: 'assets/img/nistkasten.png'
-      })
-    });
-    iconFeature.setStyle(iconStyle);
-    vectorSource.addFeature(iconFeature);
-
-    this.nistkastenLayer = new VectorLayer({
-      source: vectorSource,
-    })
-    this.map.addLayer(this.nistkastenLayer);
+  onSelectionChanged() {
+    var selectElem = document.getElementById("selection") as HTMLSelectElement;
+    console.log("selection changed: " + selectElem!.selectedIndex);
+    this.selectedNistkasten = this.filteredNistkaesten[this.selectedItem];
+    // TODO! navigate to same page using different query params
+    this.router.onSameUrlNavigation = 'reload';
+    this.router.navigate(['details', {filter: this.filter, item: selectElem.selectedIndex}]);
   }
 
   goBack() {

@@ -1,21 +1,41 @@
-<!--div id="map" class="map"></div-->
-<a href="javascript:void(0)" (click)="goBack()">Zurück</a>
-<form>
-    <table>
-        <tr>
-            <td>Kennung:</td><td></td><td><input type="text" readonly="true" value={{nistkasten.id}}></td>
-        </tr>
-        <tr>
-            <td>Nummernaufruck:</td><td></td><td><input type="text" readonly="true" value={{nistkasten.number}}></td>
-        </tr>
-        <tr>
-            <td>Merkmale:</td><td></td><td><input type="text" readonly="true" value={{nistkasten.characteristic}}></td>
-        </tr>
-        <tr>
-            <td>Position</td><td>lon:</td><td><input type="text" readonly="true" value={{nistkasten.position.lon}}></td>
-        </tr>
-        <tr>
-            <td></td><td>lat:</td><td><input type="text" readonly="true" value={{nistkasten.position.lat}}></td>
-        </tr>
-    </table>
-</form>
+<nav>
+    <a href="javascript:void(0)" (click)="goBack()">Back</a>
+    <a routerLink="">Home</a>
+</nav>
+<body>
+    <form>
+        <table>
+            <tr>
+                <td>Kennung:</td>
+                <td></td>
+                <td><input type="text" readonly="true" [value]="selectedNistkasten.id"></td>
+            </tr>
+            <tr>
+                <td>Nummernaufruck:</td>
+                <td></td>
+                <td><input type="text" readonly="true" value={{selectedNistkasten.number}}></td>
+            </tr>
+            <tr>
+                <td>Merkmale:</td>
+                <td></td>
+                <td><input type="text" readonly="true" value={{selectedNistkasten.characteristic}}></td>
+            </tr>
+            <tr>
+                <td>Position</td>
+                <td>lon:</td>
+                <td><input type="text" readonly="true" value={{selectedNistkasten.position.lon}}></td>
+            </tr>
+            <tr>
+                <td></td>
+                <td>lat:</td>
+                <td><input type="text" readonly="true" value={{selectedNistkasten.position.lat}}></td>
+            </tr>
+        </table>
+    </form>
+    <button type="button" (click)="onCommentsClicked()">Notizen</button><br>
+    <select (change)="onSelectionChanged()" id="selection">
+        <option *ngFor="let nistkasten of filteredNistkaesten; index as i"
+            [attr.selected]="i == selectedItem ? true : null">{{nistkasten.id}}</option>
+    </select>
+</body>
+
