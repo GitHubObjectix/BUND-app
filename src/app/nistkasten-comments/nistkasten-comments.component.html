@@ -3,4 +3,5 @@
     <a routerLink="">Home</a>
 </nav>
 <body>
+    <textarea *ngFor="let comment of comments" readonly="true" value="{{comment.content}}"></textarea>
 </body>

@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 import { environment } from './../environments/environment';
 
-import { Nistkasten } from './nistkasten'
+import { Nistkasten } from './nistkasten';
 import { Position } from './nistkasten';
+import { Comment } from './nistkasten';
 
 import { HttpClient } from '@angular/common/http';
 
@@ -70,5 +71,25 @@ export class NistkastenService {
   getClosestNistkaesten(distThreshold: number) : Nistkasten[]
   {
     return this.nistkaesten.filter(nk => (nk.distance != undefined ? nk.distance <= distThreshold : true));
+  }
+
+  getNistkastenComments(id: string) : Comment[] {
+    const url = environment.apiUrl + '/nestbox-comments/' + id;
+    console.log("get from " + url);
+    let comments : Comment[] = [];
+    this.http.get<any>(url).subscribe(
+      data => {
+        console.log(data);
+        for (let n = 0; n < data.Count; ++n) {
+          let comment : Comment = {
+            timestamp: new Date(Date.parse(data.Items[n].timestamp.S)),
+            type: data.Items[n].type.N,
+            content: data.Items[n].content.S
+          }
+          comments.push(comment);
+        }
+      });
+
+    return comments;
   }
 }
