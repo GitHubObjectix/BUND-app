@@ -1,7 +1,29 @@
+<!--meta name="viewport" content="width=device-width, height=800, initial-scale=1.0"-->
 <nav>
     <a href="javascript:void(0)" (click)="goBack()">Back</a>
     <a routerLink="">Home</a>
 </nav>
 <body>
-    <textarea *ngFor="let comment of comments" readonly="true" value="{{comment.content}}"></textarea>
+    <div *ngIf="comments.length > 0; then thenBlock else elseBlock"></div>
+    <ng-template #thenBlock>
+        <table>
+            <tr *ngFor="let comment of comments">
+                <!--textarea readonly="true" disabled=true value="{{comment.timestamp}}"></textarea-->
+                <label>
+                    {{comment.timestamp.getDay().toString().padStart(2, '0')}}.
+                    {{comment.timestamp.getMonth().toString().padStart(2, '0')}}.
+                    {{comment.timestamp.getFullYear().toString()}}
+                    {{comment.timestamp.getHours().toString().padStart(2, '0')}}:
+                    {{comment.timestamp.getMinutes().toString().padStart(2, '0')}} Uhr
+    
+                </label>
+                <br>
+                <textarea readonly="true" value="{{comment.content}}"></textarea>
+            </tr>
+        </table>
+    </ng-template>
+    <ng-template #elseBlock>
+        <label>Bisher keine Kommentare gespeichert.</label>
+    </ng-template>
+    <!--textarea *ngFor="let comment of comments" readonly="true" value="{{comment.content}}"></textarea-->
 </body>
