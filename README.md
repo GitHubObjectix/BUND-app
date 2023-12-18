@@ -50,8 +50,8 @@ Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protrac
 To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
 
 ## TODO
-- manuelle GPS koordinateneingabe (position setzen)
+- manuelle GPS koordinateneingabe (position setzen) - done
 - zoom verbessern (webseite vs. kartenanzeige)
-- nistkasten - historie inhalt
+- nistkasten - historie inhalt - 50%
 - nistkasten - inhalt bilder
 - nistkasten - inhalt bild hochladen

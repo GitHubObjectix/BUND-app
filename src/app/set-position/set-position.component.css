@@ -1,5 +1,6 @@
 @import url("../app.component.css");
 
 .coord-input {
-    font-size: 24px
+    font-size: 24px;
+    width: 3em;
 }
