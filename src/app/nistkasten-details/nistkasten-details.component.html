@@ -1,8 +1,11 @@
-<nav>
-    <a href="javascript:void(0)" (click)="goBack()">Back</a>
-    <a routerLink="">Home</a>
-</nav>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
 <body>
+    <nav class="nav">
+        <a href="javascript:void(0)" (click)="goBack()" class="link">Back</a>
+        <a routerLink="" class="link">Home</a>
+    </nav>
     <form>
         <table>
             <tr>
@@ -33,9 +36,9 @@
         </table>
     </form>
     <button type="button" (click)="onCommentsClicked()">Notizen</button><br>
-    <select (change)="onSelectionChanged()" id="selection">
+    <!-- <select (change)="onSelectionChanged()" id="selection">
         <option *ngFor="let nistkasten of filteredNistkaesten; index as i"
             [attr.selected]="i == selectedItem ? true : null">{{nistkasten.id}}</option>
-    </select>
+    </select> -->
 </body>
 
